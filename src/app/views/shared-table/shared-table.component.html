@@ -1,0 +1,66 @@
+<div class="shredTable">
+
+    <div class="filterHeader">
+        <mat-form-field >
+          <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+        </mat-form-field>
+    </div>
+
+    <mat-table #dataTable [dataSource]="dataSource" matSort multiTemplateDataRows>
+
+        <!-- Toggle Button Start -->
+        <ng-container matColumnDef="trigger">
+            <mat-header-cell *matHeaderCellDef fxFlex="70px">
+                <mat-icon>menu</mat-icon>
+            </mat-header-cell>
+            <mat-cell *matCellDef="let row; let i = dataIndex;" fxFlex="70px">
+                <span  (click)="expandedElement[row.recId] = !expandedElement[row.recId]" 
+                [ngClass]="[expandedElement[row.recId] ?  'active' : 'inActive']"  class="btnToggleExpand"></span>
+            </mat-cell>
+        </ng-container>
+        <!-- Toggle Button End -->
+
+   
+        <ng-container [matColumnDef]="column.id" *ngFor="let column of visibleColumns">
+            <!-- Header cell -->
+            <mat-header-cell *matHeaderCellDef [fxFlex]="column.width + 'px'" mat-sort-header>{{ column.label }}</mat-header-cell>
+            
+            <mat-cell *matCellDef="let row" [fxFlex]="column.width + 'px'">
+              <ng-container *ngIf="column.id !== 'action'">
+                  {{ row[column.id] }}
+              </ng-container>
+              <ng-container *ngIf="column.id == 'action'">
+                  <mat-slide-toggle></mat-slide-toggle>
+              </ng-container>
+            </mat-cell>
+
+          </ng-container>
+
+
+        <ng-container matColumnDef="hidden">
+            <mat-cell *matCellDef="let row;let i = dataIndex;" class="matCell" fxLayout="column" fxLayoutAlign="center start">
+                <p *ngFor="let hiddenColumn of hiddenColumns" fxLayout="row" class="m8">
+                    <strong>
+                        {{ hiddenColumn.label }}: 
+                    </strong>
+                    <span>
+                        {{ row[hiddenColumn.id] }}
+                    </span>
+                </p>
+            </mat-cell>
+        </ng-container>
+    
+ 
+        <mat-header-row *matHeaderRowDef="visibleColumnsIds" class="matHeaderRow"></mat-header-row>
+
+        <mat-row *matRowDef="let row; let i = dataIndex; columns: visibleColumnsIds" class="matRowVisible visible-row-{{row.recId}}"></mat-row>
+
+        <!-- Body row definition for hidden columns -->
+        <mat-row *matRowDef="let row; let i = dataIndex; columns: ['hidden'];" [@detailExpand]="expandedElement.length && expandedElement[row.recId] ? 'expanded' : 'collapsed'"
+            style="overflow: hidden" class="matRowHidden hidden-row-{{row.recId}} hidColLength-{{hiddenColumns.length}}" [ngClass]="expandedElement[row.recId] ? 'expanded' : 'collapsed'"></mat-row>
+
+    </mat-table>
+
+    <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" (page)="pageEvent = $event"></mat-paginator>
+
+</div>
